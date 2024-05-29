@@ -15,7 +15,6 @@ export class UserConsumer {
 
     @Process('activateUser')
     async activateUser(job: Job<{ id: number }>) {
-        console.log('CONSUMED')
         await this.userRepository.update({ id: job.data.id }, { status: true })
     }
 }

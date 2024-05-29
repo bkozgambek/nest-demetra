@@ -11,7 +11,6 @@ import axios from 'axios'
 
 @Injectable()
 export class UserService {
-
     constructor(
         @InjectRepository(UserEntity)
         private userRepository: Repository<UserEntity>,
@@ -29,26 +28,25 @@ export class UserService {
         if (data) {
             return null
         }
+
+        // перед этим пароль нужно хэшировать через bcrypt
         data = this.userRepository.create({
             ...user
         })
         await this.userRepository.save(data)
         const job = await this.produceActivateUser(data.id)
-        console.log(job.id)
         return data
     }
 
     async getOneUser(id: number): Promise<any> {
         const user = await this.cacheManager.get(id + '');
         if (user) {
-            console.log('from redis')
             return user
         } else {
 
             const user = await this.userRepository.findOneBy({ id })
             if (user) {
                 await this.cacheManager.set(id + '', user, 30 * 60 * 1000)
-                console.log('from db')
             }
             return user
         }
@@ -65,7 +63,7 @@ export class UserService {
         );
         return job
     }
-
+    // решил сюда впихнуть, по хорошему в отдельной папке utils должно быть
     async fetchFromProxy() {
 
         const proxy = {
